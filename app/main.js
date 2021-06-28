@@ -7,13 +7,19 @@ const path = require('path')
 let mainWindow = null
 app.on('ready', () => {
 	mainWindow = new BrowserWindow({
+		show: false,
 		webPreferences: {
 			preload: path.join(__dirname, "preload.js")
 		}
 	})
 	//mainWindow.webContents.openDevTools()
-	mainWindow.webContents.loadFile(path.join(__dirname,'index.html'))
-	mainWindow.on('close',()=>{
+
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show()
+	})
+	mainWindow.on('close', () => {
 		mainWindow = null
 	})
+	mainWindow.loadFile(path.join(__dirname, 'index.html'))
+
 })
