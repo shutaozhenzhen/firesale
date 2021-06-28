@@ -1,7 +1,8 @@
 const {
 	app,
 	BrowserWindow,
-	ipcMain
+	ipcMain,
+	dialog
 } = require('electron')
 const path = require('path')
 let mainWindow = null
@@ -12,10 +13,11 @@ app.on('ready', () => {
 			preload: path.join(__dirname, "preload.js")
 		}
 	})
-	mainWindow.webContents.openDevTools()
+
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show()
+		mainWindow.webContents.openDevTools()
 	})
 	mainWindow.on('close', () => {
 		mainWindow = null
@@ -23,3 +25,6 @@ app.on('ready', () => {
 	mainWindow.loadFile(path.join(__dirname, 'index.html'))
 
 })
+
+
+ipcMain.handle('openDialog',dialog.showOpenDialog)

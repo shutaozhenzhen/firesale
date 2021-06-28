@@ -16,3 +16,6 @@ markdownView.addEventListener('keyup', (event) => {
   const currentContent = event.target.value
   renderMarkdownToHtml(currentContent)
 })
+openFileButton.addEventListener('click',()=>{
+	window.renderer.openDialog()
+})
