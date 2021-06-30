@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chardet": "latest",
     "electron": "latest",
+    "iconv-lite": "latest",
     "marked": "latest"
   }
 }
