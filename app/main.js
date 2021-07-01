@@ -27,4 +27,6 @@ app.on('ready', () => {
 })
 
 
-ipcMain.handle('openDialog',dialog.showOpenDialog)
+ipcMain.handle('openDialog', (event, args) => {
+	return dialog.showOpenDialog(mainWindow,args)
+})

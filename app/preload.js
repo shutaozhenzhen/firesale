@@ -4,8 +4,7 @@ const iconv = require('iconv-lite')
 const chardet = require('chardet')
 const {
 	contextBridge,
-	ipcRenderer,
-	dialog
+	ipcRenderer
 } = require("electron")
 
 contextBridge.exposeInMainWorld(
@@ -15,17 +14,27 @@ contextBridge.exposeInMainWorld(
 		},
 		'openDialog': () => {
 			ipcRenderer.invoke('openDialog', {
-				'properties': ['openFile']
+				'properties': ['openFile'],
+				'filters': [{
+					'name': 'Text Files',
+					'extensions': ['txt']
+				}, {
+					'name': 'Markdown Files',
+					'extensions': ['md', 'markdown']
+				}, {
+					'name': 'All',
+					'extensions': ['*']
+				}]
 			}).then((result) => {
 				if (!result.canceled) {
-					let path=result.filePaths[0]
+					let path = result.filePaths[0]
 					chardet.detectFile(path, {
 							sampleSize: 1024
 						})
 						.then(encoding => {
-							fs.createReadStream(path)
-							.pipe(iconv.decodeStream(encoding))
-							.on('data',(d)=>console.log(d))
+							console.log(fs.createReadStream(path)
+								.pipe(iconv.decodeStream(encoding)))
+
 						})
 				}
 			})
