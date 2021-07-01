@@ -5,9 +5,10 @@ const {
 	dialog
 } = require('electron')
 const path = require('path')
-let mainWindow = null
-app.on('ready', () => {
-	mainWindow = new BrowserWindow({
+let windows = new Set()
+const createWindows = () => {
+
+	let newWindow = new BrowserWindow({
 		show: false,
 		webPreferences: {
 			preload: path.join(__dirname, "preload.js")
@@ -15,18 +16,22 @@ app.on('ready', () => {
 	})
 
 
-	mainWindow.once('ready-to-show', () => {
-		mainWindow.show()
-		mainWindow.webContents.openDevTools()
+	newWindow.once('ready-to-show', () => {
+		newWindow.show()
+		newWindow.webContents.openDevTools()
 	})
-	mainWindow.on('close', () => {
-		mainWindow = null
+	newWindow.on('close', () => {
+		windows.delete(newWindow)
+		newWindow = null
 	})
-	mainWindow.loadFile(path.join(__dirname, 'index.html'))
+	newWindow.loadFile(path.join(__dirname, 'index.html'))
+	windows.add(newWindow)
 
-})
+
+}
+app.on('ready', createWindows)
 
 
 ipcMain.handle('openDialog', (event, args) => {
-	return dialog.showOpenDialog(mainWindow,args)
+	return dialog.showOpenDialog(mainWindow, args)
 })
