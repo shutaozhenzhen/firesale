@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld(
 		'renderMarkdownToHtml': (markdown) => {
 			return marked(markdown)
 		},
-		'openDialog': () => {
+		'openDialog': (markdownView) => {
 			ipcRenderer.invoke('openDialog', {
 				'properties': ['openFile'],
 				'filters': [{
@@ -32,15 +32,15 @@ contextBridge.exposeInMainWorld(
 							sampleSize: 1024
 						})
 						.then(encoding => {
-							console.log(fs.createReadStream(path)
-								.pipe(iconv.decodeStream(encoding)))
+							fs.readFile(path, (err, data) => {
+								if (err) throw err;
+								markdownView.value=iconv.decode(data,encoding)
+								markdownView.dispatchEvent(new Event('keyup'))
+							  })
 
 						})
 				}
 			})
-		},
-		'openFile': (path) => {
-
 		}
 	}
 )
