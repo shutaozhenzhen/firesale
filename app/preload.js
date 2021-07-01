@@ -34,9 +34,9 @@ contextBridge.exposeInMainWorld(
 						.then(encoding => {
 							fs.readFile(path, (err, data) => {
 								if (err) throw err;
-								markdownView.value=iconv.decode(data,encoding)
+								markdownView.value = iconv.decode(data, encoding)
 								markdownView.dispatchEvent(new Event('keyup'))
-							  })
+							})
 
 						})
 				}

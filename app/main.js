@@ -33,5 +33,5 @@ app.on('ready', createWindows)
 
 
 ipcMain.handle('openDialog', (event, args) => {
-	return dialog.showOpenDialog(mainWindow, args)
+	return dialog.showOpenDialog(BrowserWindow.fromWebContents(event.sender), args)
 })
