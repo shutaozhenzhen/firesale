@@ -32,6 +32,18 @@ const createWindows = () => {
 	windows.add(newWindow)
 }
 app.on('ready', createWindows)
+app.on('window-all-closed',()=>{
+	if(process.platform==='darwin'){
+		return false
+	}else{
+		app.quit()
+	}
+})
+app.on('activate',(event,hasVisibleWindows)=>{
+	if(!hasVisibleWindows){
+		createWindows()
+	}
+})
 ipcMain.handle('openDialog', (event, args) => {
 	return dialog.showOpenDialog(BrowserWindow.fromWebContents(event.sender), args)
 })
