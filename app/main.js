@@ -7,15 +7,19 @@ const {
 const path = require('path')
 let windows = new Set()
 const createWindows = () => {
-
-	let newWindow = new BrowserWindow({
-		show: false,
-		webPreferences: {
-			preload: path.join(__dirname, "preload.js")
+	const cur = BrowserWindow.getFocusedWindow()
+	let options = {
+		'show': false,
+		'webPreferences': {
+			'preload': path.join(__dirname, "preload.js")
 		}
-	})
-
-
+	}
+	if (cur) {
+		let [x, y] = cur.getPosition()
+		options['x'] = x + 10
+		options['y'] = y + 10
+	}
+	newWindow = new BrowserWindow(options)
 	newWindow.once('ready-to-show', () => {
 		newWindow.show()
 		newWindow.webContents.openDevTools()
@@ -26,12 +30,11 @@ const createWindows = () => {
 	})
 	newWindow.loadFile(path.join(__dirname, 'index.html'))
 	windows.add(newWindow)
-
-
 }
 app.on('ready', createWindows)
-
-
 ipcMain.handle('openDialog', (event, args) => {
 	return dialog.showOpenDialog(BrowserWindow.fromWebContents(event.sender), args)
+})
+ipcMain.on('newFile', () => {
+	createWindows()
 })

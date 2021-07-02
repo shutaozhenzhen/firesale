@@ -41,6 +41,9 @@ contextBridge.exposeInMainWorld(
 						})
 				}
 			})
+		},
+		'newFile':()=>{
+			ipcRenderer.send('newFile')
 		}
 	}
 )
