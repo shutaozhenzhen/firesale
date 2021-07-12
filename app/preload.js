@@ -6,7 +6,11 @@ const {
 	contextBridge,
 	ipcRenderer
 } = require("electron")
-
+let fileInfo={
+	'path':null,
+	'encoding':null,
+	'content':null//todo 自动检测大小，大于一定大小转为保存到磁盘
+}
 contextBridge.exposeInMainWorld(
 	"renderer", {
 		'renderMarkdownToHtml': (markdown) => {
@@ -27,15 +31,19 @@ contextBridge.exposeInMainWorld(
 				}]
 			}).then((result) => {
 				if (!result.canceled) {
-					let path = result.filePaths[0]
-					chardet.detectFile(path, {
+					fileInfo['path'] = result.filePaths[0]
+					chardet.detectFile(fileInfo['path'], {
 							sampleSize: 1024
 						})
 						.then(encoding => {
-							fs.readFile(path, (err, data) => {
+							fileInfo['encoding']=encoding
+							
+							fs.readFile(fileInfo['path'], (err, data) => {
 								if (err) throw err;
-								markdownView.value = iconv.decode(data, encoding)
+								fileInfo['content']=iconv.decode(data, fileInfo['encoding'])
+								markdownView.value = fileInfo['content']
 								markdownView.dispatchEvent(new Event('keyup'))
+								console.log(fileInfo)
 							})
 
 						})
