@@ -6,10 +6,11 @@ const {
 	contextBridge,
 	ipcRenderer
 } = require("electron")
-let fileInfo={
-	'path':null,
-	'encoding':null,
-	'content':null//todo 自动检测大小，大于一定大小转为保存到磁盘
+let fileInfo = {
+	'path': null,
+	'encoding': null,
+	'content': null, //todo 自动检测大小，大于一定大小转为保存到磁盘
+	'mtimeMs': null
 }
 contextBridge.exposeInMainWorld(
 	"renderer", {
@@ -36,12 +37,16 @@ contextBridge.exposeInMainWorld(
 							sampleSize: 1024
 						})
 						.then(encoding => {
-							fileInfo['encoding']=encoding
-							
+							fileInfo['encoding'] = encoding
+							fs.stat(fileInfo['path'], (err, data) => {
+								fileInfo['mtimeMs'] = data['mtimeMs']
+							})
 							fs.readFile(fileInfo['path'], (err, data) => {
 								if (err) throw err;
-								fileInfo['content']=iconv.decode(data, fileInfo['encoding'])
+								fileInfo['content'] = iconv.decode(data, fileInfo['encoding'])
 								markdownView.value = fileInfo['content']
+								ipcRenderer.send('renameTitle',fileInfo['path'])
+
 								markdownView.dispatchEvent(new Event('keyup'))
 								console.log(fileInfo)
 							})
@@ -50,7 +55,7 @@ contextBridge.exposeInMainWorld(
 				}
 			})
 		},
-		'newFile':()=>{
+		'newFile': () => {
 			ipcRenderer.send('newFile')
 		}
 	}

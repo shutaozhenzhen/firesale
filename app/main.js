@@ -6,16 +6,15 @@ const {
 } = require('electron')
 const path = require('path')
 let windows = new Set()
-const createWindows = () => {
-	const cur = BrowserWindow.getFocusedWindow()
+const createWindows = (curWindows) => {
 	let options = {
 		'show': false,
 		'webPreferences': {
 			'preload': path.join(__dirname, "preload.js")
 		}
 	}
-	if (cur) {
-		let [x, y] = cur.getPosition()
+	if (curWindows) {
+		let [x, y] = curWindows.getPosition()
 		options['x'] = x + 10
 		options['y'] = y + 10
 	}
@@ -31,22 +30,28 @@ const createWindows = () => {
 	newWindow.loadFile(path.join(__dirname, 'index.html'))
 	windows.add(newWindow)
 }
-app.on('ready', createWindows)
-app.on('window-all-closed',()=>{
-	if(process.platform==='darwin'){
+app.on('ready', () => {
+	createWindows(null)
+})
+app.on('window-all-closed', () => {
+	if (process.platform === 'darwin') {
 		return false
-	}else{
+	} else {
 		app.quit()
 	}
 })
-app.on('activate',(event,hasVisibleWindows)=>{
-	if(!hasVisibleWindows){
-		createWindows()
+app.on('activate', (event, hasVisibleWindows) => {
+	if (!hasVisibleWindows) {
+		createWindows(null)
 	}
 })
 ipcMain.handle('openDialog', (event, args) => {
 	return dialog.showOpenDialog(BrowserWindow.fromWebContents(event.sender), args)
 })
-ipcMain.on('newFile', () => {
-	createWindows()
+ipcMain.on('newFile', (event, args) => {
+	createWindows(BrowserWindow.fromWebContents(event.sender))
+})
+ipcMain.on('renameTitle', (event, filePath) => {
+	const title = 'Fire Sale'
+	BrowserWindow.fromWebContents(event.sender).setTitle(`${path.basename(filePath)} - ${title}`)
 })
