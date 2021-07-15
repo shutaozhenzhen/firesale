@@ -6,6 +6,10 @@ const {
 	contextBridge,
 	ipcRenderer
 } = require("electron")
+const changeMarkdownView=(markdownView)=>(val)=>{
+	markdownView.value = val
+	markdownView.dispatchEvent(new Event('keyup'))
+}
 let fileInfo = {
 	'path': null,
 	'encoding': null,
@@ -47,7 +51,7 @@ contextBridge.exposeInMainWorld(
 								markdownView.value = fileInfo['content']
 								ipcRenderer.send('renameTitle',fileInfo['path'])
 
-								markdownView.dispatchEvent(new Event('keyup'))
+								changeMarkdownView(markdownView)(fileInfo['content'])
 								console.log(fileInfo)
 							})
 
