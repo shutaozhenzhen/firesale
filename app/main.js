@@ -6,7 +6,7 @@ const {
 } = require('electron')
 const path = require('path')
 let windows = new Set()
-const createWindows = (curWindows) => {
+const createWindows = (curWindows=null) => {
 	let options = {
 		'show': false,
 		'webPreferences': {
@@ -18,7 +18,7 @@ const createWindows = (curWindows) => {
 		options['x'] = x + 10
 		options['y'] = y + 10
 	}
-	newWindow = new BrowserWindow(options)
+	let newWindow = new BrowserWindow(options)
 	newWindow.once('ready-to-show', () => {
 		newWindow.show()
 		newWindow.webContents.openDevTools()
@@ -31,7 +31,7 @@ const createWindows = (curWindows) => {
 	windows.add(newWindow)
 }
 app.on('ready', () => {
-	createWindows(null)
+	createWindows()
 })
 app.on('window-all-closed', () => {
 	if (process.platform === 'darwin') {
@@ -42,7 +42,7 @@ app.on('window-all-closed', () => {
 })
 app.on('activate', (event, hasVisibleWindows) => {
 	if (!hasVisibleWindows) {
-		createWindows(null)
+		createWindows()
 	}
 })
 ipcMain.handle('openDialog', (event, args) => {
